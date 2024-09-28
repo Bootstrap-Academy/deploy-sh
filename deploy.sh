@@ -64,14 +64,14 @@ deploy() {
     if [[ "$currentDrv" = "$systemDrv" ]]; then
       log "Current and new configuration are the same" "\e[32m"
     else
-      if ! [[ -e "$currentDrv" ]] && ! env $(nixSshPort "$targetHost") $nix copy --derivation --from $(nixSshHost "$targetHost") "$currentDrv^*"; then
+      if ! [[ -e "$currentDrv" ]] && ! env $(nixSshPort "$targetHost") $nix copy --derivation --no-check-sigs --from $(nixSshHost "$targetHost") "$currentDrv^*"; then
         if [[ -z "$buildHost" ]] || [[ "$targetHost" = "$buildHost" ]]; then
           log "Failed to fetch current system from $targetHost" "\e[31m"
           return 1
         fi
 
         log "Failed to fetch current system from $targetHost" "\e[33m"
-        if ! env $(nixSshPort "$buildHost") $nix copy --derivation --from $(nixSshHost "$buildHost") "$currentDrv^*"; then
+        if ! env $(nixSshPort "$buildHost") $nix copy --derivation --no-check-sigs --from $(nixSshHost "$buildHost") "$currentDrv^*"; then
           log "Failed to fetch current system from $buildHost" "\e[31m"
           return 1
         fi
