@@ -4,21 +4,17 @@
   };
 
   outputs = {
-    nixpkgs,
     self,
+    nixpkgs,
   }: let
-    defaultSystems = [
+    inherit (nixpkgs) lib;
+
+    eachDefaultSystem = lib.genAttrs [
       "x86_64-linux"
       "x86_64-darwin"
       "aarch64-linux"
       "aarch64-darwin"
     ];
-    eachDefaultSystem = f:
-      builtins.listToAttrs (map (system: {
-          name = system;
-          value = f system;
-        })
-        defaultSystems);
   in {
     packages = eachDefaultSystem (system: let
       pkgs = import nixpkgs {inherit system;};
@@ -77,7 +73,6 @@
           };
 
           _config = mkOption {
-            type = types.anything;
             visible = false;
             readOnly = true;
           };
