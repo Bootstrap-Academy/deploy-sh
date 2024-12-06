@@ -44,7 +44,7 @@
           targetHost = mkOption {
             type = types.str;
             example = "root@10.13.37.2";
-            description = lib.mdDoc ''
+            description = ''
               The host to deploy the system on. Both the local host and the build host has to be able to connect to this host via SSH.
             '';
           };
@@ -52,7 +52,7 @@
             type = types.nullOr types.str;
             default = config.deploy-sh.targetHost;
             example = "root@10.13.37.3";
-            description = lib.mdDoc ''
+            description = ''
               The host to build the system on. The local host has to be able to connect to this host via SSH.
             '';
           };
@@ -60,7 +60,7 @@
             type = types.nullOr types.str;
             default = null;
             example = "/var/cache/deploy-sh/HOSTNAME";
-            description = lib.mdDoc ''
+            description = ''
               A path on the build host where to store a symlink to the new system to avoid garbage collection.
             '';
           };
