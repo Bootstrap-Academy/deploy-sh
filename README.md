@@ -29,7 +29,7 @@ Simple NixOS remote deployment tool
   ```nix
   {
     inputs = {
-      deploy-sh.url = "github:Defelo/deploy-sh";
+      deploy-sh.url = "git+https://git.defelo.de/Defelo/deploy-sh";
     };
     outputs = {self, nixpkgs, deploy-sh, ...}: {
       nixosConfigurations.foo = nixpkgs.lib.nixosSystem {
@@ -56,7 +56,7 @@ Simple NixOS remote deployment tool
   ```nix
   {
     inputs = {
-      deploy-sh = "github:Defelo/deploy-sh";
+      deploy-sh = "git+https://git.defelo.de/Defelo/deploy-sh";
     };
     outputs = {self, nixpkgs, deploy-sh, ...}: let
       system = "x86_64-linux";
@@ -73,13 +73,13 @@ Simple NixOS remote deployment tool
 </details>
 
 ## NixOS Module Options
-See [flake.nix](https://github.com/Defelo/deploy-sh/blob/develop/flake.nix#L48-L77)
+See [flake.nix](https://git.defelo.de/Defelo/deploy-sh/blob/develop/flake.nix#L48-L77)
 
 ## Usage
 ```
 $ nix develop  # if you are not using direnv
 $ deploy --help
-Simple NixOS remote deployment tool (https://github.com/Defelo/deploy-sh)
+Simple NixOS remote deployment tool (https://git.defelo.de/Defelo/deploy-sh)
 
 Usage: deploy [OPTIONS] [HOSTS]...
 
