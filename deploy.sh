@@ -198,7 +198,7 @@ deploy() {
 
 for arg in $@; do
   if [[ "$arg" =~ ^(-h|--help)$ ]]; then
-    echo -e "Simple NixOS remote deployment tool (\e[36mhttps://git.defelo.de/Defelo/deploy-sh\e[0m)"
+    echo -e "Simple NixOS remote deployment tool (\e[36mhttps://radicle.defelo.de/nodes/radicle.defelo.de/rad:z392ZFR7AcScpaQqmTKUDkDj9FWMq\e[0m)"
     echo -e
     echo -e "\e[1m\e[32mUsage: \e[36mdeploy [OPTIONS] [HOSTS]...\e[0m"
     echo -e
