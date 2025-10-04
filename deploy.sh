@@ -135,7 +135,7 @@ deploy() {
     log "Building system for $targetHost on $buildHost"
     ssh $(sshPort "$buildHost") $(sshHost "$buildHost") $nix build --no-link "$nomDrv^*"
     if [[ -n "$buildCache" ]]; then
-      ssh $(sshPort "$buildHost") $(sshHost "$buildHost") "mkdir -p \"$(basename "$buildCache")\" && $nix build -o \"$buildCache\" \"$systemDrv^*\" $nomPipe"
+      ssh $(sshPort "$buildHost") $(sshHost "$buildHost") "$nix build -o \"$buildCache\" \"$systemDrv^*\" $nomPipe"
     else
       ssh $(sshPort "$buildHost") $(sshHost "$buildHost") "$nix build --no-link \"$systemDrv^*\" $nomPipe"
     fi
@@ -157,7 +157,6 @@ deploy() {
     log "Building system for $targetHost locally"
     $nix build --no-link "$nomDrv^*"
     if [[ -n "$buildCache" ]]; then
-      mkdir -p $(basename "$buildCache")
       bash -c "$nix build -o \"$buildCache\" \"$systemDrv^*\" $nomPipe"
     else
       bash -c "$nix build --no-link \"$systemDrv^*\" $nomPipe"
