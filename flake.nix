@@ -28,7 +28,7 @@
           install -DT ${./deploy.sh} $out/bin/deploy
         '';
         postFixup = ''
-          wrapProgram $out/bin/deploy --set PATH ${with pkgs; lib.makeBinPath [coreutils bash gnugrep jq nix git openssh nix-diff nvd]}
+          wrapProgram $out/bin/deploy --set PATH ${with pkgs; lib.makeBinPath [coreutils bash gnugrep jq nix git openssh nix-diff nvd nix-output-monitor]}
         '';
       };
     });

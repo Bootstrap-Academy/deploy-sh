@@ -112,7 +112,12 @@ deploy() {
   log "System path: $system" "\e[0m"
   log "System derivation: $systemDrv" "\e[0m"
 
-  local nomPipe="--log-format internal-json -v |& $nom/bin/nom --json"
+  if [[ -z "$buildHost" ]]; then
+    nomBin="nom"
+  else
+    nomBin="$nom/bin/nom"
+  fi
+  local nomPipe="--log-format internal-json -v |& $nomBin --json"
 
   if [[ "$buildHost" != "$targetHost" ]] && [[ "$pushDerivations" = "1" ]]; then
     log "Copying derivations to target host $targetHost"
@@ -155,7 +160,6 @@ deploy() {
     fi
 
     log "Building system for $targetHost locally"
-    $nix build --no-link "$nomDrv^*"
     if [[ -n "$buildCache" ]]; then
       bash -c "$nix build -o \"$buildCache\" \"$systemDrv^*\" $nomPipe"
     else
