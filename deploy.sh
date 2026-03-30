@@ -54,6 +54,9 @@ deploy() {
     buildCache=""
   fi
 
+  if [[ -n "$useSudoOverride" ]]; then
+    useSudo="$useSudoOverride"
+  fi
   if [[ "$useSudo" = 1 ]]; then
     sudoCmd="sudo -S --prompt= --"
   else
@@ -231,6 +234,9 @@ for arg in $@; do
     echo -e "\e[1m\e[36m  --eval         \e[0m Evaluate the new configuration, but neither build nor activate it."
     echo -e "\e[1m\e[36m  --build        \e[0m Build the new configuration, but do not activate it."
     echo -e
+    echo -e "\e[1m\e[36m  --sudo         \e[0m Use sudo for commands that require privileges on the target host."
+    echo -e "\e[1m\e[36m  --no-sudo      \e[0m Don't use sudo on the target host."
+    echo -e
     echo -e "\e[1m\e[32mDiff options:\e[0m"
     echo -e "\e[1m\e[36m  --diff         \e[0m Display differences between the current and new configuration"
     echo -e "\e[1m\e[36m  --no-diff      \e[0m Don't display differences between the current and new configuration."
@@ -256,6 +262,7 @@ for arg in $@; do
 done
 
 action=switch
+useSudoOverride=""
 buildLocal=0
 buildRemote=0
 buildHostOverride=""
@@ -273,6 +280,12 @@ while [[ $# -gt 0 ]]; do
   case "$i" in
     --switch|--boot|--test|--dry-activate|--reboot|--eval|--build)
       action=${i#"--"}
+      ;;
+    --sudo)
+      useSudoOverride=1
+      ;;
+    --no-sudo)
+      useSudoOverride=0
       ;;
     --diff)
       diff=1

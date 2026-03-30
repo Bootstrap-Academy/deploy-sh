@@ -96,6 +96,9 @@ Activation options:
   --reboot        Build the new configuration, make it the boot default and reboot into the new system.
   --eval          Evaluate the new configuration, but neither build nor activate it.
 
+  --sudo          Use sudo for commands that require privileges on the target host.
+  --no-sudo       Don't use sudo on the target host.
+
 Diff options:
   --diff          Display differences between the current and new configuration
   --no-diff       Don't display differences between the current and new configuration.
