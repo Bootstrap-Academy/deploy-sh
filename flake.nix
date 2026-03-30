@@ -64,6 +64,10 @@
               A path on the build host where to store a symlink to the new system to avoid garbage collection.
             '';
           };
+          useSudo = mkOption {
+            type = types.bool;
+            default = false;
+          };
           enableDiff = mkOption {
             type = types.bool;
             default = true;
@@ -89,6 +93,7 @@
               system = config.system.build.toplevel.outPath;
               nomDrv = pkgs.nix-output-monitor.drvPath;
               nom = pkgs.nix-output-monitor.outPath;
+              useSudo = if cfg.useSudo then "1" else "0";
             };
             text = builtins.concatStringsSep "" (lib.mapAttrsToList (k: v: "local ${k}=${lib.escapeShellArg v}\n") vars);
           in

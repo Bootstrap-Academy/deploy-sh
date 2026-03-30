@@ -54,6 +54,12 @@ deploy() {
     buildCache=""
   fi
 
+  if [[ "$useSudo" = 1 ]]; then
+    sudoCmd="sudo -S --prompt= --"
+  else
+    sudoCmd=""
+  fi
+
   if [[ $nvd = 1 ]] || [[ $diff = 1 ]]; then
     log "Copying current derivation from target host $targetHost"
     if ! currentDrv=$(ssh $(sshPort "$targetHost") $(sshHost "$targetHost") nix-store --query --deriver /run/current-system); then
@@ -175,20 +181,26 @@ deploy() {
   fi
 
   log "Activating system on $targetHost ($action)"
+  if [[ "$useSudo" = 1 ]]; then
+    read -rs -p "[sudo] password for $targetHost: " sudoPassword
+    echo
+  else
+    sudoPassword=""
+  fi
   if [[ "$action" =~ ^(switch|boot|reboot)$ ]]; then
-    ssh $(sshPort "$targetHost") $(sshHost "$targetHost") nix-env -p /nix/var/nix/profiles/system --set "$system"
+    echo -n "$sudoPassword" | ssh $(sshPort "$targetHost") $(sshHost "$targetHost") $sudoCmd nix-env -p /nix/var/nix/profiles/system --set "$system"
   fi
   if [[ "$action" = "reboot" ]]; then
-    ssh $(sshPort "$targetHost") $(sshHost "$targetHost") "$system/bin/switch-to-configuration" boot
+    echo -n "$sudoPassword" | ssh $(sshPort "$targetHost") $(sshHost "$targetHost") $sudoCmd "$system/bin/switch-to-configuration" boot
     log "Rebooting $targetHost"
-    ssh $(sshPort "$targetHost") $(sshHost "$targetHost") reboot
+    echo -n "$sudoPassword" | ssh $(sshPort "$targetHost") $(sshHost "$targetHost") $sudoCmd reboot
     log "Waiting for $targetHost to reboot"
     sleep 5
     while ! ssh $(sshPort "$targetHost") $(sshHost "$targetHost") -o StrictHostKeyChecking=yes true; do
       sleep 1
     done
   else
-    ssh $(sshPort "$targetHost") $(sshHost "$targetHost") "$system/bin/switch-to-configuration" "$action"
+    echo -n "$sudoPassword" | ssh $(sshPort "$targetHost") $(sshHost "$targetHost") $sudoCmd "$system/bin/switch-to-configuration" "$action"
   fi
 
   if ! ssh $(sshPort "$targetHost") $(sshHost "$targetHost") 'cmp -s <(readlink /run/booted-system/{initrd,kernel,kernel-modules}) <(readlink /run/current-system/{initrd,kernel,kernel-modules})'; then
