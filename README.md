@@ -95,6 +95,7 @@ Activation options:
   --dry-activate  Build the new configuration, but do not activate it.
   --reboot        Build the new configuration, make it the boot default and reboot into the new system.
   --eval          Evaluate the new configuration, but neither build nor activate it.
+  --build         Build the new configuration, but do not activate it.
 
   --[no-]sudo     Use sudo for commands that require privileges on the target host.
 
