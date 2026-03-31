@@ -31,7 +31,7 @@ deploy() {
   log "Starting deployment of $host" "\e[33m"
   log "Evaluating configuration"
   local config
-  config=$($nix build --no-link --print-out-paths ".#nixosConfigurations.\"$host\".config.deploy-sh._config")
+  config=$($nix build --no-link --print-out-paths "${extraEvalOptions[@]}" ".#nixosConfigurations.\"$host\".config.deploy-sh._config")
   source "$config"
   log "Evaluation succeeded!" "\e[32m"
 
@@ -267,6 +267,7 @@ fetch=0
 deployed=0
 diff=0
 nvd=1
+extraEvalOptions=()
 
 rebootHosts=()
 
@@ -323,6 +324,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --no-fetch)
       fetch=0
+      ;;
+    --override-input)
+      extraEvalOptions+=("$i" "$1" "$2")
+      shift 2
       ;;
     -*)
       echo -e "\e[1m\e[31mUnknown flag: $i\e[0m"
