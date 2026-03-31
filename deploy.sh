@@ -63,7 +63,12 @@ deploy() {
     sudoCmd=""
   fi
 
-  if [[ $nvd = 1 ]] || [[ $diff = 1 ]]; then
+  warnOrError="\e[33m"
+  if [[ "$action" = "check" ]]; then
+    warnOrError="\e[31m"
+  fi
+
+  if [[ $nvd = 1 ]] || [[ $diff = 1 ]] || [[ "$action" = "check" ]]; then
     log "Copying current derivation from target host $targetHost"
     if ! currentDrv=$(ssh $(sshPort "$targetHost") $(sshHost "$targetHost") nix-store --query --deriver /run/current-system); then
       log "Failed to lookup current system on $targetHost" "\e[31m"
@@ -72,6 +77,26 @@ deploy() {
 
     if [[ "$currentDrv" = "$systemDrv" ]]; then
       log "Current and new configuration are the same" "\e[32m"
+
+      if [[ "$action" = "check" ]]; then
+        if ! currentProfile=$(ssh $(sshPort "$targetHost") $(sshHost "$targetHost") readlink -f /nix/var/nix/profiles/system); then
+          log "Failed to lookup current system profile on $targetHost" "\e[31m"
+          return 1
+        fi
+        if [[ "$currentProfile" != "$system" ]]; then
+          log "The current system profile does not match the running system" "\e[31m"
+          return 2
+        else
+          log "The current system profile matches the running system" "\e[32m"
+        fi
+
+        if ! ssh $(sshPort "$targetHost") $(sshHost "$targetHost") 'cmp -s <(readlink /run/booted-system/{initrd,kernel,kernel-modules}) <(readlink /run/current-system/{initrd,kernel,kernel-modules})'; then
+          log "The target host hasn't been rebooted yet" "\e[31m"
+          return 2
+        else
+          log "No reboot is necessary" "\e[32m"
+        fi
+      fi
     else
       if ! [[ -e "$currentDrv" ]] && ! env $(nixSshPort "$targetHost") $nix copy --derivation --no-check-sigs --from $(nixSshHost "$targetHost") "$currentDrv^*"; then
         if [[ -z "$buildHost" ]] || [[ "$targetHost" = "$buildHost" ]]; then
@@ -86,7 +111,7 @@ deploy() {
         fi
       fi
 
-      log "Current and new configuration differ:" "\e[33m"
+      log "Current and new configuration differ:" "$warnOrError"
       if [[ $diff = 1 ]]; then
         nix-diff "$currentDrv" "$systemDrv"
       fi
@@ -97,10 +122,14 @@ deploy() {
       if [[ "$(extractKernelPaths $currentDrv)" != "$(extractKernelPaths $systemDrv)" ]]; then
         log "Reboot is recommended after deploying this configuration!" "\e[33m"
       fi
+
+      if [[ "$action" = "check" ]]; then
+        return 2
+      fi
     fi
   fi
 
-  if [[ "$action" = "eval" ]]; then
+  if [[ "$action" =~ ^(eval|check)$ ]]; then
     return
   fi
 
@@ -231,6 +260,7 @@ for arg in $@; do
     echo -e "\e[1m\e[36m  --test         \e[0m Build and activate the new configuration, but do not add it to the boot menu."
     echo -e "\e[1m\e[36m  --dry-activate \e[0m Build the new configuration, but only dry-activate it."
     echo -e "\e[1m\e[36m  --reboot       \e[0m Build the new configuration, make it the boot default and reboot into the new system."
+    echo -e "\e[1m\e[36m  --check        \e[0m Evaluate the new configuration and verify that it has been deployed correctly."
     echo -e "\e[1m\e[36m  --eval         \e[0m Evaluate the new configuration, but neither build nor activate it."
     echo -e "\e[1m\e[36m  --build        \e[0m Build the new configuration, but do not activate it."
     echo -e
@@ -274,7 +304,7 @@ rebootHosts=()
 while [[ $# -gt 0 ]]; do
   i="$1"; shift 1
   case "$i" in
-    --switch|--boot|--test|--dry-activate|--reboot|--eval|--build)
+    --switch|--boot|--test|--dry-activate|--reboot|--eval|--build|--check)
       action=${i#"--"}
       ;;
     --sudo)

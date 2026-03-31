@@ -94,6 +94,7 @@ Activation options:
   --test          Build and activate the new configuration, but do not add it to the boot menu.
   --dry-activate  Build the new configuration, but do not activate it.
   --reboot        Build the new configuration, make it the boot default and reboot into the new system.
+  --check         Evaluate the new configuration and verify that it has been deployed correctly.
   --eval          Evaluate the new configuration, but neither build nor activate it.
   --build         Build the new configuration, but do not activate it.
 
