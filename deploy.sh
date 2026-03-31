@@ -238,8 +238,16 @@ deploy() {
 
   log "Activating system on $targetHost ($action)"
   if [[ "$useSudo" = 1 ]]; then
-    read -rs -p "[sudo] password for $targetHost: " sudoPassword
-    echo
+    ok=0
+    for i in {1..3}; do
+      read -rs -p "[sudo] password for $targetHost: " sudoPassword
+      echo
+      if echo -n "$sudoPassword" | ssh $(sshPort "$targetHost") $(sshHost "$targetHost") sudo -S --prompt= -v; then
+        ok=1
+        break
+      fi
+    done
+    if [[ $ok = 0 ]]; then return 1; fi
   else
     sudoPassword=""
   fi
