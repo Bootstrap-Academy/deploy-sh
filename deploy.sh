@@ -28,7 +28,7 @@ deploy() {
   host="$1"
   trap "log 'Deployment of $host failed!' \"\e[31m\"" ERR
 
-  log "Starting deployment of $host" "\e[33m"
+  log "Starting deployment of $host ($action)" "\e[33m"
   log "Evaluating configuration"
   local config
   config=$($nix build --no-link --print-out-paths "${extraEvalOptions[@]}" ".#nixosConfigurations.\"$host\".config.deploy-sh._config")
