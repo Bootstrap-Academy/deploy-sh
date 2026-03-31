@@ -168,8 +168,18 @@ deploy() {
 
     if [[ $fetch = 1 ]] && [[ "$targetHost" != "$buildHost" ]]; then
       if oldSystem=$(ssh $(sshPort "$targetHost") $(sshHost "$targetHost") readlink /run/current-system); then
-        log "Fetching old system from $targetHost"
-        ssh $(sshPort "$buildHost") $(sshHost "$buildHost") env $(nixSshPort "$targetHost") $nix copy --no-check-sigs --from $(nixSshHost "$targetHost") "$oldSystem"
+        case "$systemCopyStrategy" in
+          direct)
+            log "Copying old system from $targetHost to $buildHost"
+            ssh $(sshPort "$buildHost") $(sshHost "$buildHost") env $(nixSshPort "$targetHost") $nix copy --no-check-sigs --from $(nixSshHost "$targetHost") "$oldSystem"
+            ;;
+          via-local)
+            log "Copying old system from $targetHost"
+            env $(nixSshPort "$targetHost") $nix copy --no-check-sigs --from $(nixSshHost "$targetHost") "$oldSystem"
+            log "Copying old system to $buildHost"
+            env $(nixSshPort "$buildHost") $nix copy --to $(nixSshHost "$buildHost") "$oldSystem"
+            ;;
+        esac
       else
         log "Failed to lookup current system on $targetHost" "\e[31m"
       fi
@@ -184,8 +194,18 @@ deploy() {
     fi
 
     if [[ "$targetHost" != "$buildHost" ]]; then
-      log "Copying system to $targetHost"
-      ssh $(sshPort "$buildHost") $(sshHost "$buildHost") env $(nixSshPort "$targetHost") $nix copy --to $(nixSshHost "$targetHost") "$system"
+      case "$systemCopyStrategy" in
+        direct)
+          log "Copying system from $buildHost to $targetHost"
+          ssh $(sshPort "$buildHost") $(sshHost "$buildHost") env $(nixSshPort "$targetHost") $nix copy --to $(nixSshHost "$targetHost") "$system"
+          ;;
+        via-local)
+          log "Copying system from $buildHost"
+          env $(nixSshPort "$buildHost") $nix copy --no-check-sigs --from $(nixSshHost "$buildHost") "$system"
+          log "Copying system to $targetHost"
+          env $(nixSshPort "$targetHost") $nix copy --to $(nixSshHost "$targetHost") "$system"
+          ;;
+      esac
     fi
   else
     if [[ $fetch = 1 ]]; then

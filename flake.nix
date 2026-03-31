@@ -68,6 +68,10 @@
             type = types.bool;
             default = false;
           };
+          systemCopyStrategy = mkOption {
+            type = types.enum [ "direct" "via-local" ];
+            default = "direct";
+          };
           enableDiff = mkOption {
             type = types.bool;
             default = true;
@@ -88,7 +92,7 @@
           deploy-sh.pushDerivations = lib.mkDefault cfg.enableDiff;
           deploy-sh._config = let
             vars = {
-              inherit (cfg) buildHost targetHost buildCache pushDerivations;
+              inherit (cfg) buildHost targetHost buildCache pushDerivations systemCopyStrategy;
               systemDrv = config.system.build.toplevel.drvPath;
               system = config.system.build.toplevel.outPath;
               nomDrv = pkgs.nix-output-monitor.drvPath;
