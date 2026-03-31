@@ -63,6 +63,10 @@ deploy() {
     sudoCmd=""
   fi
 
+  if [[ -n "$systemCopyStrategyOverride" ]]; then
+    systemCopyStrategy="$systemCopyStrategyOverride"
+  fi
+
   warnOrError="\e[33m"
   if [[ "$action" = "check" ]]; then
     warnOrError="\e[31m"
@@ -275,33 +279,35 @@ for arg in $@; do
     echo -e "All hosts are deployed if no host is specified explicitly."
     echo -e
     echo -e "\e[1m\e[32mActivation options:\e[0m"
-    echo -e "\e[1m\e[36m  --switch       \e[0m Build and activate the new configuration, and make it the boot default. (default)"
-    echo -e "\e[1m\e[36m  --boot         \e[0m Build the new configuration and make it the boot default, but do not activate it."
-    echo -e "\e[1m\e[36m  --test         \e[0m Build and activate the new configuration, but do not add it to the boot menu."
-    echo -e "\e[1m\e[36m  --dry-activate \e[0m Build the new configuration, but only dry-activate it."
-    echo -e "\e[1m\e[36m  --reboot       \e[0m Build the new configuration, make it the boot default and reboot into the new system."
-    echo -e "\e[1m\e[36m  --check        \e[0m Evaluate the new configuration and verify that it has been deployed correctly."
-    echo -e "\e[1m\e[36m  --eval         \e[0m Evaluate the new configuration, but neither build nor activate it."
-    echo -e "\e[1m\e[36m  --build        \e[0m Build the new configuration, but do not activate it."
+    echo -e "\e[1m\e[36m  --switch         \e[0m Build and activate the new configuration, and make it the boot default. (default)"
+    echo -e "\e[1m\e[36m  --boot           \e[0m Build the new configuration and make it the boot default, but do not activate it."
+    echo -e "\e[1m\e[36m  --test           \e[0m Build and activate the new configuration, but do not add it to the boot menu."
+    echo -e "\e[1m\e[36m  --dry-activate   \e[0m Build the new configuration, but only dry-activate it."
+    echo -e "\e[1m\e[36m  --reboot         \e[0m Build the new configuration, make it the boot default and reboot into the new system."
+    echo -e "\e[1m\e[36m  --check          \e[0m Evaluate the new configuration and verify that it has been deployed correctly."
+    echo -e "\e[1m\e[36m  --eval           \e[0m Evaluate the new configuration, but neither build nor activate it."
+    echo -e "\e[1m\e[36m  --build          \e[0m Build the new configuration, but do not activate it."
     echo -e
-    echo -e "\e[1m\e[36m  --[no-]sudo    \e[0m Use sudo for commands that require privileges on the target host."
+    echo -e "\e[1m\e[36m  --[no-]sudo      \e[0m Use sudo for commands that require privileges on the target host."
     echo -e
     echo -e "\e[1m\e[32mDiff options:\e[0m"
-    echo -e "\e[1m\e[36m  --[no-]diff    \e[0m Display differences between the current and new configuration"
-    echo -e "\e[1m\e[36m  --[no-]nvd     \e[0m Display package differences between the current and new configuration. (default)"
+    echo -e "\e[1m\e[36m  --[no-]diff      \e[0m Display differences between the current and new configuration"
+    echo -e "\e[1m\e[36m  --[no-]nvd       \e[0m Display package differences between the current and new configuration. (default)"
     echo -e
     echo -e "\e[1m\e[32mHost options:\e[0m"
-    echo -e "\e[1m\e[36m  --local        \e[0m Build the configuration locally and copy the new system to the target host."
-    echo -e "\e[1m\e[36m  --remote       \e[0m Build the configuration on the remote build host."
-    echo -e "\e[1m\e[36m  --build-host   \e[0m Set the host to build the configuration on."
-    echo -e "\e[1m\e[36m  --target-host  \e[0m Set the host to deploy the system on."
+    echo -e "\e[1m\e[36m  --local          \e[0m Build the configuration locally and copy the new system to the target host."
+    echo -e "\e[1m\e[36m  --remote         \e[0m Build the configuration on the remote build host."
+    echo -e "\e[1m\e[36m  --build-host     \e[0m Set the host to build the configuration on."
+    echo -e "\e[1m\e[36m  --target-host    \e[0m Set the host to deploy the system on."
+    echo -e "\e[1m\e[36m  --copy-direct    \e[0m Copy the new system directly from build host to target host."
+    echo -e "\e[1m\e[36m  --copy-via-local \e[0m Copy the new system from build host to localhost and then from localhost to target host."
     echo -e
     echo -e "\e[1m\e[32mBuild options:\e[0m"
-    echo -e "\e[1m\e[36m  --[no-]cache   \e[0m Set a path on the build host where to store a symlink to the new system to avoid garbage collection."
-    echo -e "\e[1m\e[36m  --[no-]fetch   \e[0m Copy the current system of the target host to the build host before building."
+    echo -e "\e[1m\e[36m  --[no-]cache     \e[0m Set a path on the build host where to store a symlink to the new system to avoid garbage collection."
+    echo -e "\e[1m\e[36m  --[no-]fetch     \e[0m Copy the current system of the target host to the build host before building."
     echo -e
     echo -e "\e[1m\e[32mOptions:\e[0m"
-    echo -e "\e[1m\e[36m  -h  --help     \e[0m Print help"
+    echo -e "\e[1m\e[36m  -h  --help       \e[0m Print help"
     exit
   fi
 done
@@ -313,6 +319,7 @@ buildRemote=0
 buildHostOverride=""
 targetHostOverride=""
 buildCacheOverride=""
+systemCopyStrategyOverride=""
 fetch=0
 deployed=0
 diff=0
@@ -362,6 +369,12 @@ while [[ $# -gt 0 ]]; do
       ;;
     --targetHost|--target-host)
       targetHostOverride="$1"; shift 1
+      ;;
+    --copy-direct)
+      systemCopyStrategyOverride="direct"
+      ;;
+    --copy-via-local)
+      systemCopyStrategyOverride="via-local"
       ;;
     --cache)
       buildCacheOverride="$1"; shift 1

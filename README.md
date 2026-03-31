@@ -89,31 +89,33 @@ and only baz on a remote build host.
 All hosts are deployed if no host is specified explicitly.
 
 Activation options:
-  --switch        Build and activate the new configuration, and make it the boot default. (default)
-  --boot          Build the new configuration and make it the boot default, but do not activate it.
-  --test          Build and activate the new configuration, but do not add it to the boot menu.
-  --dry-activate  Build the new configuration, but do not activate it.
-  --reboot        Build the new configuration, make it the boot default and reboot into the new system.
-  --check         Evaluate the new configuration and verify that it has been deployed correctly.
-  --eval          Evaluate the new configuration, but neither build nor activate it.
-  --build         Build the new configuration, but do not activate it.
+  --switch          Build and activate the new configuration, and make it the boot default. (default)
+  --boot            Build the new configuration and make it the boot default, but do not activate it.
+  --test            Build and activate the new configuration, but do not add it to the boot menu.
+  --dry-activate    Build the new configuration, but only dry-activate it.
+  --reboot          Build the new configuration, make it the boot default and reboot into the new system.
+  --check           Evaluate the new configuration and verify that it has been deployed correctly.
+  --eval            Evaluate the new configuration, but neither build nor activate it.
+  --build           Build the new configuration, but do not activate it.
 
-  --[no-]sudo     Use sudo for commands that require privileges on the target host.
+  --[no-]sudo       Use sudo for commands that require privileges on the target host.
 
 Diff options:
-  --[no-]diff     Display differences between the current and new configuration
-  --[no-]nvd      Display package differences between the current and new configuration. (default)
+  --[no-]diff       Display differences between the current and new configuration
+  --[no-]nvd        Display package differences between the current and new configuration. (default)
 
 Host options:
-  --local         Build the configuration locally and copy the new system to the target host.
-  --remote        Build the configuration on the remote build host.
-  --build-host    Set the host to build the configuration on.
-  --target-host   Set the host to deploy the system on.
+  --local           Build the configuration locally and copy the new system to the target host.
+  --remote          Build the configuration on the remote build host.
+  --build-host      Set the host to build the configuration on.
+  --target-host     Set the host to deploy the system on.
+  --copy-direct     Copy the new system directly from build host to target host.
+  --copy-via-local  Copy the new system from build host to localhost and then from localhost to target host.
 
 Build options:
-  --[no-]cache    Set a path on the build host where to store a symlink to the new system to avoid garbage collection.
-  --[no-]fetch    Copy the current system of the target host to the build host before building.
+  --[no-]cache      Set a path on the build host where to store a symlink to the new system to avoid garbage collection.
+  --[no-]fetch      Copy the current system of the target host to the build host before building.
 
 Options:
-  -h  --help      Print help
+  -h  --help        Print help
 ```
