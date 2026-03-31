@@ -96,14 +96,11 @@ Activation options:
   --reboot        Build the new configuration, make it the boot default and reboot into the new system.
   --eval          Evaluate the new configuration, but neither build nor activate it.
 
-  --sudo          Use sudo for commands that require privileges on the target host.
-  --no-sudo       Don't use sudo on the target host.
+  --[no-]sudo     Use sudo for commands that require privileges on the target host.
 
 Diff options:
-  --diff          Display differences between the current and new configuration
-  --no-diff       Don't display differences between the current and new configuration.
-  --nvd           Display package differences between the current and new configuration. (default)
-  --no-nvd        Don't display package differences between the current and new configuration.
+  --[no-]diff     Display differences between the current and new configuration
+  --[no-]nvd      Display package differences between the current and new configuration. (default)
 
 Host options:
   --local         Build the configuration locally and copy the new system to the target host.
@@ -112,10 +109,8 @@ Host options:
   --target-host   Set the host to deploy the system on.
 
 Build options:
-  --cache         Set a path on the build host where to store a symlink to the new system to avoid garbage collection.
-  --no-cache      Don't store a symlink to the new system on the build host.
-  --fetch         Copy the current system of the target host to the build host before building.
-  --no-fetch      Don't copy the current system of the target host to the build host before building. (default)
+  --[no-]cache    Set a path on the build host where to store a symlink to the new system to avoid garbage collection.
+  --[no-]fetch    Copy the current system of the target host to the build host before building.
 
 Options:
   -h  --help      Print help

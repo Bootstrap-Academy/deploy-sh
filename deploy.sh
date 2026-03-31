@@ -234,14 +234,11 @@ for arg in $@; do
     echo -e "\e[1m\e[36m  --eval         \e[0m Evaluate the new configuration, but neither build nor activate it."
     echo -e "\e[1m\e[36m  --build        \e[0m Build the new configuration, but do not activate it."
     echo -e
-    echo -e "\e[1m\e[36m  --sudo         \e[0m Use sudo for commands that require privileges on the target host."
-    echo -e "\e[1m\e[36m  --no-sudo      \e[0m Don't use sudo on the target host."
+    echo -e "\e[1m\e[36m  --[no-]sudo    \e[0m Use sudo for commands that require privileges on the target host."
     echo -e
     echo -e "\e[1m\e[32mDiff options:\e[0m"
-    echo -e "\e[1m\e[36m  --diff         \e[0m Display differences between the current and new configuration"
-    echo -e "\e[1m\e[36m  --no-diff      \e[0m Don't display differences between the current and new configuration."
-    echo -e "\e[1m\e[36m  --nvd          \e[0m Display package differences between the current and new configuration. (default)"
-    echo -e "\e[1m\e[36m  --no-nvd       \e[0m Don't display package differences between the current and new configuration."
+    echo -e "\e[1m\e[36m  --[no-]diff    \e[0m Display differences between the current and new configuration"
+    echo -e "\e[1m\e[36m  --[no-]nvd     \e[0m Display package differences between the current and new configuration. (default)"
     echo -e
     echo -e "\e[1m\e[32mHost options:\e[0m"
     echo -e "\e[1m\e[36m  --local        \e[0m Build the configuration locally and copy the new system to the target host."
@@ -250,10 +247,8 @@ for arg in $@; do
     echo -e "\e[1m\e[36m  --target-host  \e[0m Set the host to deploy the system on."
     echo -e
     echo -e "\e[1m\e[32mBuild options:\e[0m"
-    echo -e "\e[1m\e[36m  --cache        \e[0m Set a path on the build host where to store a symlink to the new system to avoid garbage collection."
-    echo -e "\e[1m\e[36m  --no-cache     \e[0m Don't store a symlink to the new system on the build host."
-    echo -e "\e[1m\e[36m  --fetch        \e[0m Copy the current system of the target host to the build host before building."
-    echo -e "\e[1m\e[36m  --no-fetch     \e[0m Don't copy the current system of the target host to the build host before building. (default)"
+    echo -e "\e[1m\e[36m  --[no-]cache   \e[0m Set a path on the build host where to store a symlink to the new system to avoid garbage collection."
+    echo -e "\e[1m\e[36m  --[no-]fetch   \e[0m Copy the current system of the target host to the build host before building."
     echo -e
     echo -e "\e[1m\e[32mOptions:\e[0m"
     echo -e "\e[1m\e[36m  -h  --help     \e[0m Print help"
