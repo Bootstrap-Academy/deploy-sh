@@ -265,7 +265,7 @@ deploy() {
   fi
 
   log "Activating system on $targetHost ($action)"
-  if [[ "$useSudo" = 1 ]]; then
+  if [[ "$useSudo" = 1 ]] && ! ssh $(sshPort "$targetHost") $(sshHost "$targetHost") sudo -nv 2>/dev/null; then
     ok=0
     for i in {1..3}; do
       read -rs -p "[sudo] password for $targetHost: " sudoPassword
