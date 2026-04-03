@@ -12,16 +12,28 @@ log() {
 
 sshHost() { echo "${1%:*}"; }
 sshPort() { [[ "$1" =~ :[0-9]+$ ]] && echo "-p${1##*:}" || echo -p22; }
-nixSshHost() { echo "ssh://$(sshHost $1)"; }
+nixSshHost() { echo "ssh-ng://$(sshHost $1)"; }
 nixSshPort() { echo "NIX_SSHOPTS=$(sshPort $1)"; }
 
 nix="nix --extra-experimental-features nix-command --extra-experimental-features flakes"
 
 extractKernelPaths() {
-  build=$($nix derivation show "$1^*" | jq -r 'values | .[].env.buildCommand')
+  build=$($nix derivation show "$1^*" | jq -r 'values | .derivations[].env.buildCommand')
   for path in initrd kernel kernel-modules; do
     grep -o "^ln -s .* \\\$out/$path\$" <<< "$build" | cut -d' ' -f3
   done
+}
+
+checkTrusted() {
+  if [[ $# -eq 2 ]]; then
+    env $(nixSshPort "$2") $nix store info --store $(nixSshHost "$2") --json
+  else
+    $nix store info --json
+  fi \
+  | jq -e .trusted >/dev/null || {
+    log "$1 is not trusted" "\e[31m"
+    return 1
+  }
 }
 
 deploy() {
@@ -70,6 +82,22 @@ deploy() {
   warnOrError="\e[33m"
   if [[ "$action" = "check" ]]; then
     warnOrError="\e[31m"
+  fi
+
+  if ! [[ "$action" =~ ^(eval|check)$ ]]; then
+    if [[ "$targetHost" != "$buildHost" ]]; then
+      checkTrusted "User on target host $targetHost" "$targetHost"
+    fi
+
+    if [[ -n "$buildHost" ]] && [[ "$targetHost" != "$buildHost" ]] && [[ $fetch = 1 ]]; then
+      checkTrusted "User on build host $buildHost" "$buildHost"
+    fi
+
+    if {
+      [[ -n "$buildHost" ]] && [[ "$targetHost" != "$buildHost" ]] && [[ "$systemCopyStrategy" = "via-local" ]];
+    } || { [[ -z "$buildHost" ]] && [[ $fetch = 1 ]]; }; then
+      checkTrusted "Local user"
+    fi
   fi
 
   if [[ $nvd = 1 ]] || [[ $diff = 1 ]] || [[ "$action" = "check" ]]; then
@@ -181,7 +209,7 @@ deploy() {
             log "Copying old system from $targetHost"
             env $(nixSshPort "$targetHost") $nix copy --no-check-sigs --from $(nixSshHost "$targetHost") "$oldSystem"
             log "Copying old system to $buildHost"
-            env $(nixSshPort "$buildHost") $nix copy --to $(nixSshHost "$buildHost") "$oldSystem"
+            env $(nixSshPort "$buildHost") $nix copy --no-check-sigs --to $(nixSshHost "$buildHost") "$oldSystem"
             ;;
         esac
       else
@@ -201,13 +229,13 @@ deploy() {
       case "$systemCopyStrategy" in
         direct)
           log "Copying system from $buildHost to $targetHost"
-          ssh $(sshPort "$buildHost") $(sshHost "$buildHost") env $(nixSshPort "$targetHost") $nix copy --to $(nixSshHost "$targetHost") "$system"
+          ssh $(sshPort "$buildHost") $(sshHost "$buildHost") env $(nixSshPort "$targetHost") $nix copy --no-check-sigs --to $(nixSshHost "$targetHost") "$system"
           ;;
         via-local)
           log "Copying system from $buildHost"
           env $(nixSshPort "$buildHost") $nix copy --no-check-sigs --from $(nixSshHost "$buildHost") "$system"
           log "Copying system to $targetHost"
-          env $(nixSshPort "$targetHost") $nix copy --to $(nixSshHost "$targetHost") "$system"
+          env $(nixSshPort "$targetHost") $nix copy --no-check-sigs --to $(nixSshHost "$targetHost") "$system"
           ;;
       esac
     fi
@@ -229,7 +257,7 @@ deploy() {
     fi
 
     log "Copying system to $targetHost"
-    env $(nixSshPort "$targetHost") $nix copy --to $(nixSshHost "$targetHost") "$system"
+    env $(nixSshPort "$targetHost") $nix copy --no-check-sigs --to $(nixSshHost "$targetHost") "$system"
   fi
 
   if [[ "$action" = "build" ]]; then
