@@ -12,7 +12,8 @@ log() {
 
 sshHost() { echo "${1%:*}"; }
 sshPort() { [[ "$1" =~ :[0-9]+$ ]] && echo "-p${1##*:}" || echo -p22; }
-nixSshHost() { echo "ssh-ng://$(sshHost $1)"; }
+nixSshHost() { echo "ssh://$(sshHost $1)"; }
+nixSshNgHost() { echo "ssh-ng://$(sshHost $1)"; }
 nixSshPort() { echo "NIX_SSHOPTS=$(sshPort $1)"; }
 
 nix="nix --extra-experimental-features nix-command --extra-experimental-features flakes"
@@ -26,7 +27,7 @@ extractKernelPaths() {
 
 checkTrusted() {
   if [[ $# -eq 2 ]]; then
-    env $(nixSshPort "$2") $nix store info --store $(nixSshHost "$2") --json
+    env $(nixSshPort "$2") $nix store info --store $(nixSshNgHost "$2") --json
   else
     $nix store info --json
   fi \
