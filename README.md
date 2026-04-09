@@ -73,7 +73,7 @@ Simple NixOS remote deployment tool
 </details>
 
 ## NixOS Module Options
-See [flake.nix](https://radicle.defelo.de/nodes/radicle.defelo.de/rad:z392ZFR7AcScpaQqmTKUDkDj9FWMq/tree/flake.nix#L43)
+[search.defelo.de](https://search.defelo.de/?scope=deploy-sh)
 
 ## Usage
 ```
