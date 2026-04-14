@@ -25,5 +25,15 @@
       });
 
       nixosModules.default = ./module.nix;
+
+      formatter = eachSystem (
+        pkgs:
+        pkgs.treefmt.withConfig {
+          settings = lib.mkMerge [
+            ./treefmt.nix
+            { _module.args = { inherit pkgs; }; }
+          ];
+        }
+      );
     };
 }
