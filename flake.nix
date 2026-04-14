@@ -35,5 +35,14 @@
           ];
         }
       );
+
+      checks = eachSystem (pkgs: {
+        packages = pkgs.linkFarm "packages" self.packages.${pkgs.stdenv.hostPlatform.system};
+        fmt = pkgs.runCommand "fmt-check" { } ''
+          cp -r --no-preserve=mode ${self} repo
+          ${lib.getExe self.formatter.${pkgs.stdenv.hostPlatform.system}} -C repo --ci
+          touch $out
+        '';
+      });
     };
 }
